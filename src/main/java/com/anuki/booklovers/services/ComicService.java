@@ -1,103 +1,106 @@
 package com.anuki.booklovers.services;
 
-import com.anuki.booklovers.models.*;
+import com.anuki.booklovers.models.Chapter;
+import com.anuki.booklovers.models.Comic;
+import com.anuki.booklovers.models.Comment;
 import com.anuki.booklovers.repositories.ComicRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
-import java.sql.Date;
-import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ComicService {
 
-    @Autowired
     private final ComicRepository comicRepository;
 
-    public ComicService(ComicRepository comicRepository) {
-        this.comicRepository = comicRepository;
-    }
-
+    @Transactional
     public Comic createComic(Comic comic) {
-        comic.setComments(new ArrayList<Comment>());
-        comic.setChapters(new ArrayList<Chapter>());
-        comic.setDate(Date.from(Instant.now()));
-        comic.setNote((double)0);
+        comic.setDate(new Date());
+        comic.setComments(new ArrayList<>());
+        comic.setChapters(new ArrayList<>());
+        comic.setNote(0.0);
         return comicRepository.save(comic);
     }
 
-    public List<Comic> list() {
+    public List<Comic> listAllComics() {
         return comicRepository.findAll();
     }
 
-    public List<Comment> listCommentsByComicId(Integer comicId) {
-        Comic comic = comicRepository.findById(comicId).get();
-        return comic.getComments();
+    public Optional<List<Comment>> listCommentsByComicId(Integer comicId) {
+        return comicRepository.findById(comicId)
+                .map(Comic::getComments);
     }
 
-    public Comic findById(Integer id){ return comicRepository.findById(id).get();}
+    public Optional<Comic> findComicById(Integer id) {
+        return comicRepository.findById(id);
+    }
 
-    public Comment createComment(String userName, Integer comicId, Comment comment) {
-        comment.setUserName(userName);
-        comment.setDate(Date.from(Instant.now()));
-        Comic comic = comicRepository.findById(comicId).get();
-        List<Comment> comments = comic.getComments();
-        double accumulator = (double) 0;
-        for(Comment commet : comments){
-            accumulator =+ (double) commet.getNote();
-        }
-        accumulator = accumulator/comments.size();
-        comic.setNote(accumulator);
-        comic.getComments().add(comment);
-        comicRepository.save(comic);
-        return comment;
+    @Transactional
+    public Optional<Comment> createComment(String userName, Integer comicId, Comment comment) {
+        return comicRepository.findById(comicId).map(comic -> {
+            comment.setUserName(userName);
+            comment.setDate(new Date());
+            comic.getComments().add(comment);
+            updateComicNote(comic);
+            comicRepository.save(comic);
+            return comment;
+        });
     }
 
     public void deleteComicById(Integer comicId) {
         comicRepository.deleteById(comicId);
     }
 
-    public List<Chapter> listChaptersByComicId(Integer comicId) {
-        return comicRepository.findChaptersById(comicId);
+    public Optional<List<Chapter>> listChaptersByComicId(Integer comicId) {
+        return comicRepository.findById(comicId)
+                .map(Comic::getChapters);
     }
 
-    public Chapter createChapterByComicId(String userName, Integer comicId, Chapter chapter) {
-        chapter.setComments(new ArrayList<Comment>());
-        Comic comic = comicRepository.findById(comicId).get();
-        comic.getChapters().add(chapter);
-        comicRepository.save(comic);
-        return chapter;
+    @Transactional
+    public Optional<Chapter> createChapterByComicId(Integer comicId, Chapter chapter) {
+        return comicRepository.findById(comicId).map(comic -> {
+            chapter.setComments(new ArrayList<>()); // Initialize empty comments list
+            comic.getChapters().add(chapter);
+            comicRepository.save(comic);
+            return chapter;
+        });
     }
 
-    public Comment createCommentInChapter(String userName, Integer comicId, int chapterNum, Comment comment) {
-        comment.setUserName(userName);
-        comment.setDate(Date.from(Instant.now()));
-        Comic comic = comicRepository.findById(comicId).get();
-        List<Chapter> chapters = comic.getChapters();
-        List<Chapter> newChapters = new ArrayList<Chapter>();
-        for (Chapter chapter:chapters) {
-            if(chapter.getNumber() == chapterNum) {
-                List<Comment> comments = chapter.getComments();
-                comments.add(comment);
-                chapter.setComments(comments);
+    @Transactional
+    public Optional<Comment> createCommentInChapter(String userName, Integer comicId, int chapterNum, Comment comment) {
+        return comicRepository.findById(comicId).map(comic -> {
+            for (Chapter chapter : comic.getChapters()) {
+                if (chapter.getNumber() == chapterNum) {
+                    comment.setUserName(userName);
+                    comment.setDate(new Date());
+                    chapter.getComments().add(comment);
+                }
             }
-            newChapters.addAll(chapters);
-        }
-        comic.setChapters(newChapters);
-        comicRepository.save(comic);
-        return comment;
+            comicRepository.save(comic);
+            return comment;
+        });
     }
 
-    public List<Comment> listCommentsInChapter(Integer comicId, int chapterNum) {
-        List<Chapter> chapters = comicRepository.findChaptersById(comicId);
-        List<Comment> comments = new ArrayList<Comment>();
-        for (Chapter chapter:chapters) {
-            if(chapter.getNumber() == chapterNum){
-                comments = chapter.getComments();
+    public Optional<List<Comment>> listCommentsInChapter(Integer comicId, int chapterNum) {
+        return comicRepository.findById(comicId).map(comic -> {
+            for (Chapter chapter : comic.getChapters()) {
+                if (chapter.getNumber() == chapterNum) {
+                    return chapter.getComments();
+                }
             }
-        }
-        return comments;
+            return null;
+        });
+    }
+
+    private void updateComicNote(Comic comic) {
+        List<Comment> comments = comic.getComments();
+        double totalNote = comments.stream().mapToDouble(Comment::getNote).sum();
+        comic.setNote(comments.isEmpty() ? 0 : totalNote / comments.size());
     }
 }

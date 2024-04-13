@@ -3,6 +3,7 @@ package com.anuki.booklovers.controllers;
 import com.anuki.booklovers.models.Book;
 import com.anuki.booklovers.models.Comment;
 import com.anuki.booklovers.services.BookService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,33 +16,33 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/book-lovers/books")
+@RequiredArgsConstructor
 public class BookController {
 
-    @Autowired
     private final BookService bookService;
-
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
-    }
 
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book){
-        return new ResponseEntity<Book>(bookService.createBook(book), HttpStatus.CREATED);
+        return new ResponseEntity<>(bookService.createBook(book), HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<Book>> listBooks(){
-        return new ResponseEntity<List<Book>>(bookService.list(), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.listAllBooks(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBook(@PathVariable Integer id){
-        return new ResponseEntity<Book>(bookService.findById(id), HttpStatus.OK);
+        return bookService.findBookById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/comments")
     public ResponseEntity<List<Comment>> listComments(@PathVariable Integer id){
-        return new ResponseEntity<List<Comment>>(bookService.listCommentsByBookId(id), HttpStatus.OK);
+        return bookService.listCommentsByBookId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/{bookId}/comments")
@@ -49,7 +50,9 @@ public class BookController {
                                                  @PathVariable Integer bookId,
                                                  @RequestBody Comment comment) {
 
-        return new ResponseEntity<Comment>(bookService.createComment(user.getUsername(), bookId, comment),HttpStatus.CREATED);
+        return bookService.createComment(user.getUsername(), bookId, comment)
+                .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
+                .orElse(ResponseEntity.notFound().build());
 
     }
 

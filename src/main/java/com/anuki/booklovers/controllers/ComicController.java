@@ -4,87 +4,95 @@ import com.anuki.booklovers.models.Chapter;
 import com.anuki.booklovers.models.Comic;
 import com.anuki.booklovers.models.Comment;
 import com.anuki.booklovers.services.ComicService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/book-lovers/comics")
+@RequiredArgsConstructor
 public class ComicController {
 
-    @Autowired
     private final ComicService comicService;
 
-    public ComicController(ComicService comicService) {
-        this.comicService = comicService;
-    }
-
     @PostMapping
-    public ResponseEntity<Comic> createComic(@RequestBody Comic comic){
-        return new ResponseEntity<Comic>(comicService.createComic(comic), HttpStatus.CREATED);
+    public ResponseEntity<?> createComic(@RequestBody Comic comic) {
+        Comic createdComic = comicService.createComic(comic);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdComic);
     }
 
     @GetMapping
-    public ResponseEntity<List<Comic>> listComic(){
-        return new ResponseEntity<List<Comic>>(comicService.list(), HttpStatus.OK);
+    public ResponseEntity<List<Comic>> listComics() {
+        List<Comic> comics = comicService.listAllComics();
+        return ResponseEntity.ok(comics);
     }
 
-    @GetMapping("/{comicId}")
-    public ResponseEntity<Comic> getComic(@PathVariable Integer id){
-        return new ResponseEntity<Comic>(comicService.findById(id), HttpStatus.OK);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getComic(@PathVariable Integer id) {
+        return comicService.findComicById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{comicId}/comments")
-    public ResponseEntity<List<Comment>> listComments(@PathVariable Integer comicId){
-        return new ResponseEntity<List<Comment>>(comicService.listCommentsByComicId(comicId), HttpStatus.OK);
+    public ResponseEntity<?> listComments(@PathVariable Integer comicId) {
+        return comicService.listCommentsByComicId(comicId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/{comicId}/comments")
-    public ResponseEntity<Comment> createComment(@AuthenticationPrincipal UserDetails user,
-                                                 @PathVariable Integer comicId,
-                                                 @RequestBody Comment comment){
-
-        return new ResponseEntity<Comment> (comicService.createComment(user.getUsername(), comicId, comment),HttpStatus.CREATED);
-
+    public ResponseEntity<?> createComment(@AuthenticationPrincipal UserDetails user,
+                                           @PathVariable Integer comicId,
+                                           @RequestBody Comment comment) {
+        return comicService.createComment(user.getUsername(), comicId, comment)
+                .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{comicId}/chapters")
-    public ResponseEntity<List<Chapter>> listChapters(@PathVariable Integer comicId){
-        return new ResponseEntity<List<Chapter>> (comicService.listChaptersByComicId(comicId), HttpStatus.OK);
-    }
-
-    @PostMapping("/{comicId}/chapters/{chapterNum}/comments")
-    public ResponseEntity<Comment> createCommentInChapter(@AuthenticationPrincipal UserDetails user,
-                                                  @PathVariable Integer comicId,
-                                                  @PathVariable int chapterNum,
-                                                  @RequestBody Comment comment) {
-        return new ResponseEntity<Comment> (comicService.createCommentInChapter(user.getUsername(), comicId, chapterNum, comment), HttpStatus.CREATED);
-    }
-
-    @GetMapping("/{comicId}/chapters/{chapterNum}/comments")
-    public ResponseEntity<List<Comment>> listCommentsInChapter(@PathVariable Integer comicId,
-                                                               @PathVariable int chapterNum) {
-        return new ResponseEntity<List<Comment>> (comicService.listCommentsInChapter(comicId, chapterNum), HttpStatus.OK);
+    public ResponseEntity<?> listChapters(@PathVariable Integer comicId) {
+        return comicService.listChaptersByComicId(comicId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/{comicId}/chapters")
-    public ResponseEntity<Chapter> createChapters(@AuthenticationPrincipal UserDetails user,
-                                                  @PathVariable Integer comicId,
-                                                  @RequestBody Chapter chapter) {
-        return new ResponseEntity<Chapter> (comicService.createChapterByComicId(user.getUsername(), comicId, chapter), HttpStatus.OK);
+    public ResponseEntity<?> createChapter(@PathVariable Integer comicId,
+                                           @RequestBody Chapter chapter) {
+        return comicService.createChapterByComicId(comicId, chapter)
+                .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{comicId}/chapters/{chapterNum}/comments")
+    public ResponseEntity<?> createCommentInChapter(@AuthenticationPrincipal UserDetails user,
+                                                    @PathVariable Integer comicId,
+                                                    @PathVariable int chapterNum,
+                                                    @RequestBody Comment comment) {
+        return comicService.createCommentInChapter(user.getUsername(), comicId, chapterNum, comment)
+                .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{comicId}/chapters/{chapterNum}/comments")
+    public ResponseEntity<?> listCommentsInChapter(@PathVariable Integer comicId,
+                                                   @PathVariable int chapterNum) {
+        return comicService.listCommentsInChapter(comicId, chapterNum)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{comicId}")
-    public ResponseEntity<?> deleteComic(@PathVariable Integer comicId){
+    public ResponseEntity<Void> deleteComic(@PathVariable Integer comicId) {
         comicService.deleteComicById(comicId);
-        return new ResponseEntity<> (HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
-
-
 }
+

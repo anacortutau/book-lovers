@@ -3,58 +3,60 @@ package com.anuki.booklovers.services;
 import com.anuki.booklovers.models.Book;
 import com.anuki.booklovers.models.Comment;
 import com.anuki.booklovers.repositories.BookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
-import java.sql.Date;
-import java.time.Instant;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class BookService {
 
-    @Autowired
     private final BookRepository bookRepository;
 
-    public BookService(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
-    }
-
+    @Transactional
     public Book createBook(Book book) {
-        book.setDate(Date.from(Instant.now()));
-        book.setComments(new ArrayList<Comment>());
-        book.setNote((double) 0);
+        book.setDate(new Date());
+        book.setComments(new ArrayList<>());
+        book.setNote(0.0);
         return bookRepository.save(book);
     }
 
-    public List<Book> list() {
+    public List<Book> listAllBooks() {
         return bookRepository.findAll();
     }
 
-    public List<Comment> listCommentsByBookId(Integer id) {
-        Book book = bookRepository.findById(id).get();
-        return book.getComments();
+    public Optional<List<Comment>> listCommentsByBookId(Integer id) {
+        return bookRepository.findById(id).map(Book::getComments);
     }
 
-    public Book findById(Integer id) {
-        return bookRepository.findById(id).get();
+    public Optional<Book> findBookById(Integer id) {
+        return bookRepository.findById(id);
     }
 
-    public Comment createComment(String userName, Integer bookId, Comment comment) {
-        comment.setUserName(userName);
-        comment.setDate(Date.from(Instant.now()));
-        Book book = bookRepository.findById(bookId).get();
+    @Transactional
+    public Optional<Comment> createComment(String userName, Integer bookId, Comment comment) {
+        return bookRepository.findById(bookId).map(book -> {
+            comment.setUserName(userName);
+            comment.setDate(new Date());
+            book.getComments().add(comment);
+            updateBookNoteBasedOnComments(book);
+            bookRepository.save(book);
+            return comment;
+        });
+    }
+
+    private void updateBookNoteBasedOnComments(Book book) {
         List<Comment> comments = book.getComments();
-        comments.add(comment);
-        double accumulator = 0;
-        for(Comment commet : comments){
-           accumulator = accumulator + (double) commet.getNote();
-        }
-        accumulator = accumulator/comments.size();
-        book.setNote(accumulator);
-        bookRepository.save(book);
-        return comment;
+        double totalNote = comments.stream().mapToDouble(Comment::getNote).sum();
+        double averageNote = totalNote / comments.size();
+        book.setNote(averageNote);
     }
 
     public void deleteBookById(Integer bookId) {
