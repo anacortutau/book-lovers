@@ -32,11 +32,14 @@ public class ComicService {
         return comicRepository.findAll();
     }
 
-    public List<Comment> listCommentsByComicId(String comicId) {
-        return comicRepository.findCommentsById(comicId);
+    public List<Comment> listCommentsByComicId(Integer comicId) {
+        Comic comic = comicRepository.findById(comicId).get();
+        return comic.getComments();
     }
 
-    public Comment createComment(String userName, String comicId, Comment comment) {
+    public Comic findById(Integer id){ return comicRepository.findById(id).get();}
+
+    public Comment createComment(String userName, Integer comicId, Comment comment) {
         comment.setUserName(userName);
         comment.setDate(Date.from(Instant.now()));
         Comic comic = comicRepository.findById(comicId).get();
@@ -52,15 +55,15 @@ public class ComicService {
         return comment;
     }
 
-    public void deleteBookById(String comicId) {
+    public void deleteComicById(Integer comicId) {
         comicRepository.deleteById(comicId);
     }
 
-    public List<Chapter> listChaptersByComicId(String comicId) {
+    public List<Chapter> listChaptersByComicId(Integer comicId) {
         return comicRepository.findChaptersById(comicId);
     }
 
-    public Chapter createChapterByComicId(String userName, String comicId, Chapter chapter) {
+    public Chapter createChapterByComicId(String userName, Integer comicId, Chapter chapter) {
         chapter.setComments(new ArrayList<Comment>());
         Comic comic = comicRepository.findById(comicId).get();
         comic.getChapters().add(chapter);
@@ -68,7 +71,7 @@ public class ComicService {
         return chapter;
     }
 
-    public Comment createCommentInChapter(String userName, String comicId, int chapterNum, Comment comment) {
+    public Comment createCommentInChapter(String userName, Integer comicId, int chapterNum, Comment comment) {
         comment.setUserName(userName);
         comment.setDate(Date.from(Instant.now()));
         Comic comic = comicRepository.findById(comicId).get();
@@ -87,7 +90,7 @@ public class ComicService {
         return comment;
     }
 
-    public List<Comment> listCommentsInChapter(String comicId, int chapterNum) {
+    public List<Comment> listCommentsInChapter(Integer comicId, int chapterNum) {
         List<Chapter> chapters = comicRepository.findChaptersById(comicId);
         List<Comment> comments = new ArrayList<Comment>();
         for (Chapter chapter:chapters) {

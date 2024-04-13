@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ComicRepository extends JpaRepository<Comic, String> {
-    public List<Comment> findCommentsById(String comicId);
-    public List<Chapter> findChaptersById(String comicId);
+public interface ComicRepository extends JpaRepository<Comic, Integer> {
+    public List<Comment> findCommentsById(Integer comicId);
+    public List<Chapter> findChaptersById(Integer comicId);
 }
