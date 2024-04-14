@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -26,7 +27,7 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (comicRepository.count() == 0) {
+        if (userRepository.count() == 0) {
             seedData();
         }
     }
@@ -36,34 +37,39 @@ public class DataSeeder implements CommandLineRunner {
                 .username("admin")
                 .email("admin@example.com")
                 .password(passwordEncoder.encode("admin123"))
+                .roles(Set.of(Role.ADMIN))
+                .build();
+        UserEntity user = UserEntity.builder()
+                .username("user")
+                .email("user@example.com")
+                .password(passwordEncoder.encode("user123"))
+                .roles(Set.of(Role.USER))
+                .build();
+        userRepository.saveAll(List.of(admin,user));
+
+        ComicEntity comic = ComicEntity.builder()
+                .title("The Adventures of Captain Marvel")
+                .writter("John Smith")
+                .drawer("Jane Doe")
+                .sinopsis("Explore the universe with Captain Marvel.")
+                .theme(ThemeEnum.ADVENTURE)
+                .date(new Date())
                 .build();
 
-        userRepository.save(admin);
+        ChapterEntity chapter1 = ChapterEntity.builder()
+                .title("First Encounter")
+                .sinopsis("Captain Marvel encounters a mysterious alien race.")
+                .number(1)
+                .build();
 
-//        ComicEntity comic = ComicEntity.builder()
-//                .title("The Adventures of Captain Marvel")
-//                .writter("John Smith")
-//                .drawer("Jane Doe")
-//                .sinopsis("Explore the universe with Captain Marvel.")
-//                .theme(ThemeEnum.ADVENTURE)
-//                .date(new Date())
-//                .note(4.9)
-//                .build();
-//
-//        ChapterEntity chapter1 = ChapterEntity.builder()
-//                .title("First Encounter")
-//                .sinopsis("Captain Marvel encounters a mysterious alien race.")
-//                .number(1)
-//                .build();
-//
-//        ChapterEntity chapter2 = ChapterEntity.builder()
-//                .title("Galactic Battle")
-//                .sinopsis("An epic battle between galaxies.")
-//                .number(2)
-//                .build();
-//
-//        comic.setChapters(List.of(chapter1, chapter2));
-//        comicRepository.save(comic);
+        ChapterEntity chapter2 = ChapterEntity.builder()
+                .title("Galactic Battle")
+                .sinopsis("An epic battle between galaxies.")
+                .number(2)
+                .build();
+
+        comic.setChapters(List.of(chapter1, chapter2));
+        comicRepository.save(comic);
 //
 //        CommentEntity comment1 = CommentEntity.builder()
 //                .comment("Amazing story!")
