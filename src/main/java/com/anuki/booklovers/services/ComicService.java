@@ -1,8 +1,8 @@
 package com.anuki.booklovers.services;
 
-import com.anuki.booklovers.models.Chapter;
-import com.anuki.booklovers.models.Comic;
-import com.anuki.booklovers.models.Comment;
+import com.anuki.booklovers.models.ChapterEntity;
+import com.anuki.booklovers.models.ComicEntity;
+import com.anuki.booklovers.models.CommentEntity;
 import com.anuki.booklovers.repositories.ComicRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ public class ComicService {
     private final ComicRepository comicRepository;
 
     @Transactional
-    public Comic createComic(Comic comic) {
+    public ComicEntity createComic(ComicEntity comic) {
         comic.setDate(new Date());
         comic.setComments(new ArrayList<>());
         comic.setChapters(new ArrayList<>());
@@ -28,21 +28,21 @@ public class ComicService {
         return comicRepository.save(comic);
     }
 
-    public List<Comic> listAllComics() {
+    public List<ComicEntity> listAllComics() {
         return comicRepository.findAll();
     }
 
-    public Optional<List<Comment>> listCommentsByComicId(Integer comicId) {
+    public Optional<List<CommentEntity>> listCommentsByComicId(Integer comicId) {
         return comicRepository.findById(comicId)
-                .map(Comic::getComments);
+                .map(ComicEntity::getComments);
     }
 
-    public Optional<Comic> findComicById(Integer id) {
+    public Optional<ComicEntity> findComicById(Integer id) {
         return comicRepository.findById(id);
     }
 
     @Transactional
-    public Optional<Comment> createComment(String userName, Integer comicId, Comment comment) {
+    public Optional<CommentEntity> createComment(String userName, Integer comicId, CommentEntity comment) {
         return comicRepository.findById(comicId).map(comic -> {
             comment.setUserName(userName);
             comment.setDate(new Date());
@@ -57,13 +57,13 @@ public class ComicService {
         comicRepository.deleteById(comicId);
     }
 
-    public Optional<List<Chapter>> listChaptersByComicId(Integer comicId) {
+    public Optional<List<ChapterEntity>> listChaptersByComicId(Integer comicId) {
         return comicRepository.findById(comicId)
-                .map(Comic::getChapters);
+                .map(ComicEntity::getChapters);
     }
 
     @Transactional
-    public Optional<Chapter> createChapterByComicId(Integer comicId, Chapter chapter) {
+    public Optional<ChapterEntity> createChapterByComicId(Integer comicId, ChapterEntity chapter) {
         return comicRepository.findById(comicId).map(comic -> {
             chapter.setComments(new ArrayList<>()); // Initialize empty comments list
             comic.getChapters().add(chapter);
@@ -73,9 +73,9 @@ public class ComicService {
     }
 
     @Transactional
-    public Optional<Comment> createCommentInChapter(String userName, Integer comicId, int chapterNum, Comment comment) {
+    public Optional<CommentEntity> createCommentInChapter(String userName, Integer comicId, int chapterNum, CommentEntity comment) {
         return comicRepository.findById(comicId).map(comic -> {
-            for (Chapter chapter : comic.getChapters()) {
+            for (ChapterEntity chapter : comic.getChapters()) {
                 if (chapter.getNumber() == chapterNum) {
                     comment.setUserName(userName);
                     comment.setDate(new Date());
@@ -87,9 +87,9 @@ public class ComicService {
         });
     }
 
-    public Optional<List<Comment>> listCommentsInChapter(Integer comicId, int chapterNum) {
+    public Optional<List<CommentEntity>> listCommentsInChapter(Integer comicId, int chapterNum) {
         return comicRepository.findById(comicId).map(comic -> {
-            for (Chapter chapter : comic.getChapters()) {
+            for (ChapterEntity chapter : comic.getChapters()) {
                 if (chapter.getNumber() == chapterNum) {
                     return chapter.getComments();
                 }
@@ -98,9 +98,9 @@ public class ComicService {
         });
     }
 
-    private void updateComicNote(Comic comic) {
-        List<Comment> comments = comic.getComments();
-        double totalNote = comments.stream().mapToDouble(Comment::getNote).sum();
+    private void updateComicNote(ComicEntity comic) {
+        List<CommentEntity> comments = comic.getComments();
+        double totalNote = comments.stream().mapToDouble(CommentEntity::getNote).sum();
         comic.setNote(comments.isEmpty() ? 0 : totalNote / comments.size());
     }
 }

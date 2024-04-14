@@ -1,10 +1,5 @@
 package com.anuki.booklovers.security.utils.request;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import java.util.Set;
-
 public class SignUpRequest {
 
     private String username;

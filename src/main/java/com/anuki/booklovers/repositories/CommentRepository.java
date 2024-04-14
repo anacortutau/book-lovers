@@ -1,7 +1,9 @@
 package com.anuki.booklovers.repositories;
 
-import com.anuki.booklovers.models.Comment;
+import com.anuki.booklovers.models.CommentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface CommentRepository extends JpaRepository<Comment, Integer> {
+@Repository
+public interface CommentRepository extends JpaRepository<CommentEntity, Integer> {
 }

@@ -9,7 +9,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "books")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
@@ -18,7 +17,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id", "title", "author", "theme"})
-public class Book implements Serializable {
+public class BookEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,8 +34,9 @@ public class Book implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "book")
-    private List<Comment> comments;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "book_entity_id")
+    private List<CommentEntity> comments;
 
     private Double note;
 }

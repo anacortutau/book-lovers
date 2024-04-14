@@ -14,16 +14,17 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id", "title", "sinopsis", "number"})
-public class Chapter implements Serializable {
+public class ChapterEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private int id;
+    private Integer id;
 
     private String title;
     private String sinopsis;
     private int number;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Comment> comments;
+    @JoinColumn(name = "chapter_entity_id")
+    private List<CommentEntity> comments;
 }

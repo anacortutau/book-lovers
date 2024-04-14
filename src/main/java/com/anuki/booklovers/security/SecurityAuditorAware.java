@@ -1,6 +1,6 @@
 package com.anuki.booklovers.security;
 
-import com.anuki.booklovers.models.User;
+import com.anuki.booklovers.models.UserEntity;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +20,6 @@ public class SecurityAuditorAware implements AuditorAware<String> {
             return Optional.empty();
         }
 
-        return Optional.of(((User) authentication.getPrincipal()).getUsername());
+        return Optional.of(((UserEntity) authentication.getPrincipal()).getUsername());
     }
 }

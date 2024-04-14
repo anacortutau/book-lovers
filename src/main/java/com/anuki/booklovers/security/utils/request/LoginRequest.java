@@ -1,7 +1,5 @@
 package com.anuki.booklovers.security.utils.request;
 
-import javax.validation.constraints.NotBlank;
-
 public class LoginRequest {
 
     private String username;

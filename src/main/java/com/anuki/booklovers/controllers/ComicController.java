@@ -1,8 +1,8 @@
 package com.anuki.booklovers.controllers;
 
-import com.anuki.booklovers.models.Chapter;
-import com.anuki.booklovers.models.Comic;
-import com.anuki.booklovers.models.Comment;
+import com.anuki.booklovers.models.ChapterEntity;
+import com.anuki.booklovers.models.ComicEntity;
+import com.anuki.booklovers.models.CommentEntity;
 import com.anuki.booklovers.services.ComicService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +22,14 @@ public class ComicController {
     private final ComicService comicService;
 
     @PostMapping
-    public ResponseEntity<?> createComic(@RequestBody Comic comic) {
-        Comic createdComic = comicService.createComic(comic);
+    public ResponseEntity<?> createComic(@RequestBody ComicEntity comic) {
+        ComicEntity createdComic = comicService.createComic(comic);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComic);
     }
 
     @GetMapping
-    public ResponseEntity<List<Comic>> listComics() {
-        List<Comic> comics = comicService.listAllComics();
+    public ResponseEntity<List<ComicEntity>> listComics() {
+        List<ComicEntity> comics = comicService.listAllComics();
         return ResponseEntity.ok(comics);
     }
 
@@ -50,7 +50,7 @@ public class ComicController {
     @PostMapping("/{comicId}/comments")
     public ResponseEntity<?> createComment(@AuthenticationPrincipal UserDetails user,
                                            @PathVariable Integer comicId,
-                                           @RequestBody Comment comment) {
+                                           @RequestBody CommentEntity comment) {
         return comicService.createComment(user.getUsername(), comicId, comment)
                 .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -65,7 +65,7 @@ public class ComicController {
 
     @PostMapping("/{comicId}/chapters")
     public ResponseEntity<?> createChapter(@PathVariable Integer comicId,
-                                           @RequestBody Chapter chapter) {
+                                           @RequestBody ChapterEntity chapter) {
         return comicService.createChapterByComicId(comicId, chapter)
                 .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -75,7 +75,7 @@ public class ComicController {
     public ResponseEntity<?> createCommentInChapter(@AuthenticationPrincipal UserDetails user,
                                                     @PathVariable Integer comicId,
                                                     @PathVariable int chapterNum,
-                                                    @RequestBody Comment comment) {
+                                                    @RequestBody CommentEntity comment) {
         return comicService.createCommentInChapter(user.getUsername(), comicId, chapterNum, comment)
                 .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
                 .orElseGet(() -> ResponseEntity.notFound().build());

@@ -1,7 +1,9 @@
 package com.anuki.booklovers.repositories;
 
-import com.anuki.booklovers.models.Comic;
+import com.anuki.booklovers.models.ComicEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ComicRepository extends JpaRepository<Comic, Integer> {
+@Repository
+public interface ComicRepository extends JpaRepository<ComicEntity, Integer> {
 }

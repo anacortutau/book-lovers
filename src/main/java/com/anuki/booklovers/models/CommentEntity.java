@@ -18,7 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 @ToString
-public class Comment implements Serializable {
+public class CommentEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -34,4 +34,16 @@ public class Comment implements Serializable {
 
     @CreatedBy
     private String userName;
+
+    @ManyToOne
+    @JoinColumn(name = "book_entity_id")
+    private BookEntity book;
+
+    @ManyToOne
+    @JoinColumn(name = "chapter_entity_id")
+    private ChapterEntity chapter;
+
+    @ManyToOne
+    @JoinColumn(name = "comic_entity_id")
+    private ComicEntity comic;
 }

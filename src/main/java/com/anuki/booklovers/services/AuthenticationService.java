@@ -1,58 +1,48 @@
 package com.anuki.booklovers.services;
 
-import com.anuki.booklovers.models.User;
-import com.anuki.booklovers.repositories.UserRepository;
-import com.anuki.booklovers.security.jwt.JwtUtils;
-import com.anuki.booklovers.security.services.UserDetailsImpl;
+import com.anuki.booklovers.models.UserEntity;
+import com.anuki.booklovers.security.jwt.JwtTokenUtil;
 import com.anuki.booklovers.security.utils.request.LoginRequest;
-import com.anuki.booklovers.security.utils.request.SignUpRequest;
 import com.anuki.booklovers.security.utils.response.JwtResponse;
-import com.anuki.booklovers.security.utils.response.MessageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final PasswordEncoder encoder;
-    private final JwtUtils jwtUtils;
+    private final JwtTokenUtil jwtTokenUtil;
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+        );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
 
-        return new JwtResponse(jwt, userDetails.getId().toString(), userDetails.getUsername(), userDetails.getEmail());
-    }
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+                .withUsername(user.getUsername())
+                .password(user.getPassword())
+                .authorities((GrantedAuthority) user.getRoles().stream()
+                        .map(role -> "ROLE_" + role.name())
+                        .collect(Collectors.toList()))
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(false)
+                .build();
+        String jwt = jwtTokenUtil.generateToken(userDetails);
 
-    public MessageResponse registerUser(SignUpRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already taken!");
-        }
-
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use!");
-        }
-
-        User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
-        userRepository.save(user);
-        return new MessageResponse("User registered successfully!");
-    }
-
-    public void logoutUser() {
-        SecurityContextHolder.clearContext();
+        return new JwtResponse(jwt, user.getId().toString(), user.getUsername(), user.getEmail());
     }
 }

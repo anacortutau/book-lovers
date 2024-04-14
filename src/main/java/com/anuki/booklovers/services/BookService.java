@@ -1,7 +1,7 @@
 package com.anuki.booklovers.services;
 
-import com.anuki.booklovers.models.Book;
-import com.anuki.booklovers.models.Comment;
+import com.anuki.booklovers.models.BookEntity;
+import com.anuki.booklovers.models.CommentEntity;
 import com.anuki.booklovers.repositories.BookRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -21,27 +21,27 @@ public class BookService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public Book createBook(Book book) {
+    public BookEntity createBook(BookEntity book) {
         book.setDate(new Date());
         book.setComments(new ArrayList<>());
         book.setNote(0.0);
         return bookRepository.save(book);
     }
 
-    public List<Book> listAllBooks() {
+    public List<BookEntity> listAllBooks() {
         return bookRepository.findAll();
     }
 
-    public Optional<List<Comment>> listCommentsByBookId(Integer id) {
-        return bookRepository.findById(id).map(Book::getComments);
+    public Optional<List<CommentEntity>> listCommentsByBookId(Integer id) {
+        return bookRepository.findById(id).map(BookEntity::getComments);
     }
 
-    public Optional<Book> findBookById(Integer id) {
+    public Optional<BookEntity> findBookById(Integer id) {
         return bookRepository.findById(id);
     }
 
     @Transactional
-    public Optional<Comment> createComment(String userName, Integer bookId, Comment comment) {
+    public Optional<CommentEntity> createComment(String userName, Integer bookId, CommentEntity comment) {
         return bookRepository.findById(bookId).map(book -> {
             comment.setUserName(userName);
             comment.setDate(new Date());
@@ -52,9 +52,9 @@ public class BookService {
         });
     }
 
-    private void updateBookNoteBasedOnComments(Book book) {
-        List<Comment> comments = book.getComments();
-        double totalNote = comments.stream().mapToDouble(Comment::getNote).sum();
+    private void updateBookNoteBasedOnComments(BookEntity book) {
+        List<CommentEntity> comments = book.getComments();
+        double totalNote = comments.stream().mapToDouble(CommentEntity::getNote).sum();
         double averageNote = totalNote / comments.size();
         book.setNote(averageNote);
     }

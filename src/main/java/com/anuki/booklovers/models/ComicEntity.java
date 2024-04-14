@@ -15,11 +15,11 @@ import org.springframework.data.annotation.CreatedDate;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id", "title", "writter", "drawer", "theme"})
-public class Comic implements Serializable {
+public class ComicEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private Integer id;
 
     private String title;
     private String writter;
@@ -33,10 +33,12 @@ public class Comic implements Serializable {
     private Date date;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Comment> comments;
+    @JoinColumn(name = "comic_entity_id")
+    private List<CommentEntity> comments;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Chapter> chapters;
+    @JoinColumn(name = "comic_entity_id")
+    private List<ChapterEntity> chapters;
 
     private Double note;
 }

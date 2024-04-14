@@ -1,10 +1,9 @@
 package com.anuki.booklovers.repositories;
 
-import com.anuki.booklovers.models.Book;
-import com.anuki.booklovers.models.Comment;
+import com.anuki.booklovers.models.BookEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-public interface BookRepository extends JpaRepository<Book, Integer> {
+@Repository
+public interface BookRepository extends JpaRepository<BookEntity, Integer> {
 }
