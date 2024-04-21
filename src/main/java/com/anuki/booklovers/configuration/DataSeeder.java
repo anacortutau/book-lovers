@@ -8,9 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -20,9 +18,11 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired
     private ComicRepository comicRepository;
     @Autowired
-    private CommentRepository commentRepository;
+    private BookRepository bookRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ChapterRepository chapterRepository;
 
     @Override
     @Transactional
@@ -37,51 +37,85 @@ public class DataSeeder implements CommandLineRunner {
                 .username("admin")
                 .email("admin@example.com")
                 .password(passwordEncoder.encode("admin123"))
-                .roles(Set.of(Role.ADMIN))
+                .roles(new HashSet<>(Arrays.asList(Role.ADMIN)))
                 .build();
         UserEntity user = UserEntity.builder()
                 .username("user")
                 .email("user@example.com")
                 .password(passwordEncoder.encode("user123"))
-                .roles(Set.of(Role.USER))
+                .roles(new HashSet<>(Arrays.asList(Role.USER)))
                 .build();
-        userRepository.saveAll(List.of(admin,user));
+        userRepository.saveAll(Arrays.asList(admin, user));
 
-        ComicEntity comic = ComicEntity.builder()
-                .title("The Adventures of Captain Marvel")
-                .writter("John Smith")
-                .drawer("Jane Doe")
-                .sinopsis("Explore the universe with Captain Marvel.")
-                .theme(ThemeEnum.ADVENTURE)
+        List<BookEntity> books = new ArrayList<>();
+        String[] bookTitles = {"1984", "To Kill a Mockingbird", "The Great Gatsby", "Pride and Prejudice", "The Catcher in the Rye"};
+        String[] authors = {"George Orwell", "Harper Lee", "F. Scott Fitzgerald", "Jane Austen", "J.D. Salinger"};
+
+        for (int i = 0; i < 5; i++) {
+            BookEntity book = BookEntity.builder()
+                    .title(bookTitles[i])
+                    .author(authors[i])
+                    .date(new Date())
+                    .sinopsis("Sinopsis of " + bookTitles[i])
+                    .theme(ThemeEnum.ADVENTURE)
+                    .note(8.5)
+                    .comments(new ArrayList<>())
+                    .build();
+            books.add(book);
+        }
+        bookRepository.saveAll(books);
+
+        List<ComicEntity> comics = new ArrayList<>();
+        String[] comicTitles = {"The Sandman", "Watchmen", "V for Vendetta", "Batman: The Killing Joke", "The Walking Dead"};
+        String[] writters = {"Neil Gaiman", "Alan Moore", "Alan Moore", "Alan Moore", "Robert Kirkman"};
+        String[] drawers = {"Sam Kieth", "Dave Gibbons", "David Lloyd", "Brian Bolland", "Tony Moore"};
+
+        for (int i = 0; i < 5; i++) {
+            ComicEntity comic = ComicEntity.builder()
+                    .title(comicTitles[i])
+                    .writter(writters[i])
+                    .drawer(drawers[i])
+                    .date(new Date())
+                    .sinopsis("Explore the narrative of " + comicTitles[i])
+                    .theme(ThemeEnum.ADVENTURE)
+                    .chapters(new ArrayList<>())
+                    .comments(new ArrayList<>())
+                    .build();
+            comics.add(comic);
+        }
+        comicRepository.saveAll(comics);
+
+        List<ChapterEntity> chapters = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            ChapterEntity chapter = ChapterEntity.builder()
+                    .title("Chapter " + (i + 1))
+                    .sinopsis("Details of Chapter " + (i + 1))
+                    .number(i + 1)
+                    .comments(new ArrayList<>())
+                    .build();
+            chapters.add(chapter);
+        }
+        chapterRepository.saveAll(chapters);
+
+        comics.get(0).setChapters(chapters);
+        comics.get(0).getComments().add(createComment("Incredible comic!", user.getUsername(), comics.get(0), null, null));
+        comics.get(1).getComments().add(createComment("Very thought-provoking!", user.getUsername(), comics.get(1), null, null));
+        comicRepository.saveAll(comics);
+
+        books.get(0).getComments().add(createComment("A must-read for everyone.", user.getUsername(), null, books.get(0), null));
+        bookRepository.saveAll(books);
+    }
+
+    private CommentEntity createComment(String text, String username, ComicEntity comic, BookEntity book, ChapterEntity chapter) {
+        return CommentEntity.builder()
+                .comment(text)
                 .date(new Date())
+                .note(5)
+                .userName(username)
+                .comic(comic)
+                .book(book)
+                .chapter(chapter)
                 .build();
-
-        ChapterEntity chapter1 = ChapterEntity.builder()
-                .title("First Encounter")
-                .sinopsis("Captain Marvel encounters a mysterious alien race.")
-                .number(1)
-                .build();
-
-        ChapterEntity chapter2 = ChapterEntity.builder()
-                .title("Galactic Battle")
-                .sinopsis("An epic battle between galaxies.")
-                .number(2)
-                .build();
-
-        comic.setChapters(List.of(chapter1, chapter2));
-        comicRepository.save(comic);
-//
-//        CommentEntity comment1 = CommentEntity.builder()
-//                .comment("Amazing story!")
-//                .userName("admin")
-//                .date(new Date())
-//                .note(5)
-//                .build();
-//
-//        commentRepository.save(comment1);
-//
-//        comic.setComments(List.of(comment1));
-//        comicRepository.save(comic);
     }
 }
 
