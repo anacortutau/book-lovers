@@ -32,9 +32,6 @@ public class CommentEntity implements Serializable {
 
     private int note;
 
-    @CreatedBy
-    private String userName;
-
     @ManyToOne
     @JoinColumn(name = "book_entity_id")
     private BookEntity book;
@@ -46,4 +43,9 @@ public class CommentEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "comic_entity_id")
     private ComicEntity comic;
+
+    @CreatedBy
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity userEntity;
 }

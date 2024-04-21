@@ -98,20 +98,22 @@ public class DataSeeder implements CommandLineRunner {
         chapterRepository.saveAll(chapters);
 
         comics.get(0).setChapters(chapters);
-        comics.get(0).getComments().add(createComment("Incredible comic!", user.getUsername(), comics.get(0), null, null));
-        comics.get(1).getComments().add(createComment("Very thought-provoking!", user.getUsername(), comics.get(1), null, null));
+        comics.get(0).getComments().add(createComment("Review Title", "Incredible comic!", user, comics.get(0), null, null));
+        comics.get(1).getComments().add(createComment("Review Title", "Very thought-provoking!", user, comics.get(1), null, null));
+
         comicRepository.saveAll(comics);
 
-        books.get(0).getComments().add(createComment("A must-read for everyone.", user.getUsername(), null, books.get(0), null));
+        books.get(0).getComments().add(createComment("Review Title", "A must-read for everyone.", user, null, books.get(0), null));
         bookRepository.saveAll(books);
     }
 
-    private CommentEntity createComment(String text, String username, ComicEntity comic, BookEntity book, ChapterEntity chapter) {
+    private CommentEntity createComment(String title, String text, UserEntity user, ComicEntity comic, BookEntity book, ChapterEntity chapter) {
         return CommentEntity.builder()
+                .title(title)
                 .comment(text)
                 .date(new Date())
                 .note(5)
-                .userName(username)
+                .userEntity(user)
                 .comic(comic)
                 .book(book)
                 .chapter(chapter)

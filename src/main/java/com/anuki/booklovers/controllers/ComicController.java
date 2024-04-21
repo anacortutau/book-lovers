@@ -51,7 +51,7 @@ public class ComicController {
     public ResponseEntity<?> createComment(@AuthenticationPrincipal UserDetails user,
                                            @PathVariable Integer comicId,
                                            @RequestBody CommentEntity comment) {
-        return comicService.createComment(user.getUsername(), comicId, comment)
+        return comicService.createComment(user, comicId, comment)
                 .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -76,7 +76,7 @@ public class ComicController {
                                                     @PathVariable Integer comicId,
                                                     @PathVariable int chapterNum,
                                                     @RequestBody CommentEntity comment) {
-        return comicService.createCommentInChapter(user.getUsername(), comicId, chapterNum, comment)
+        return comicService.createCommentInChapter(user, comicId, chapterNum, comment)
                 .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

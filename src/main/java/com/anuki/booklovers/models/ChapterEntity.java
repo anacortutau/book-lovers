@@ -27,4 +27,8 @@ public class ChapterEntity implements Serializable {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "chapter_entity_id")
     private List<CommentEntity> comments;
+
+    @ManyToOne
+    @JoinColumn(name = "comic_entity_id")
+    private ComicEntity comic;
 }

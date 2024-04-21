@@ -2,9 +2,12 @@ package com.anuki.booklovers.services;
 
 import com.anuki.booklovers.models.BookEntity;
 import com.anuki.booklovers.models.CommentEntity;
+import com.anuki.booklovers.models.UserEntity;
 import com.anuki.booklovers.repositories.BookRepository;
+import com.anuki.booklovers.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,7 @@ import java.util.Optional;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public BookEntity createBook(BookEntity book) {
@@ -41,9 +45,11 @@ public class BookService {
     }
 
     @Transactional
-    public Optional<CommentEntity> createComment(String userName, Integer bookId, CommentEntity comment) {
+    public Optional<CommentEntity> createComment(UserDetails user, Integer bookId, CommentEntity comment) {
+        UserEntity userEntity = userRepository.findByUsername(user.getUsername()).get();
+
         return bookRepository.findById(bookId).map(book -> {
-            comment.setUserName(userName);
+            comment.setUserEntity(userEntity);
             comment.setDate(new Date());
             book.getComments().add(comment);
             updateBookNoteBasedOnComments(book);

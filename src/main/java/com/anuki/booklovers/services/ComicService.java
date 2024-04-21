@@ -3,7 +3,10 @@ package com.anuki.booklovers.services;
 import com.anuki.booklovers.models.ChapterEntity;
 import com.anuki.booklovers.models.ComicEntity;
 import com.anuki.booklovers.models.CommentEntity;
+import com.anuki.booklovers.models.UserEntity;
 import com.anuki.booklovers.repositories.ComicRepository;
+import com.anuki.booklovers.repositories.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import java.util.Optional;
 public class ComicService {
 
     private final ComicRepository comicRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public ComicEntity createComic(ComicEntity comic) {
@@ -42,9 +46,10 @@ public class ComicService {
     }
 
     @Transactional
-    public Optional<CommentEntity> createComment(String userName, Integer comicId, CommentEntity comment) {
+    public Optional<CommentEntity> createComment(UserDetails userDetails, Integer comicId, CommentEntity comment) {
+        UserEntity userEntity = userRepository.findByUsername(userDetails.getUsername()).get();
         return comicRepository.findById(comicId).map(comic -> {
-            comment.setUserName(userName);
+            comment.setUserEntity(userEntity);
             comment.setDate(new Date());
             comic.getComments().add(comment);
             updateComicNote(comic);
@@ -73,11 +78,13 @@ public class ComicService {
     }
 
     @Transactional
-    public Optional<CommentEntity> createCommentInChapter(String userName, Integer comicId, int chapterNum, CommentEntity comment) {
+    public Optional<CommentEntity> createCommentInChapter(UserDetails userDetails, Integer comicId, int chapterNum, CommentEntity comment) {
+        UserEntity userEntity = userRepository.findByUsername(userDetails.getUsername()).get();
+
         return comicRepository.findById(comicId).map(comic -> {
             for (ChapterEntity chapter : comic.getChapters()) {
                 if (chapter.getNumber() == chapterNum) {
-                    comment.setUserName(userName);
+                    comment.setUserEntity(userEntity);
                     comment.setDate(new Date());
                     chapter.getComments().add(comment);
                 }

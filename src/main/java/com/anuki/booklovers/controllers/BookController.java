@@ -49,7 +49,7 @@ public class BookController {
                                                        @PathVariable Integer bookId,
                                                        @RequestBody CommentEntity comment) {
 
-        return bookService.createComment(user.getUsername(), bookId, comment)
+        return bookService.createComment(user, bookId, comment)
                 .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
                 .orElse(ResponseEntity.notFound().build());
 
