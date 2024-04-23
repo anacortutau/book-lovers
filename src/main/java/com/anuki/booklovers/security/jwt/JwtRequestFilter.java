@@ -27,13 +27,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");
 
-        Optional<String> username = jwtTokenUtil.getUsernameFromToken(authorizationHeader.substring(7));
-        username.ifPresent(un -> {
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                validateAndLoadUserDetails(request, un, authorizationHeader.substring(7))
-                        .ifPresent(authentication -> SecurityContextHolder.getContext().setAuthentication(authentication));
-            }
+        Optional<String> jwt = getJwtFromRequest(authorizationHeader);
+
+        jwt.ifPresent(token -> {
+            Optional<String> username = extractUsernameFromJwt(token);
+            username.ifPresent(un -> {
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    validateAndLoadUserDetails(request, un, token)
+                            .ifPresent(authentication -> SecurityContextHolder.getContext().setAuthentication(authentication));
+                }
+            });
         });
+
         chain.doFilter(request, response);
     }
 
