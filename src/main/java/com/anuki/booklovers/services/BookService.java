@@ -7,16 +7,20 @@ import com.anuki.booklovers.repositories.BookRepository;
 import com.anuki.booklovers.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Book;
 import java.util.Date;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookService {
@@ -46,17 +50,29 @@ public class BookService {
 
     @Transactional
     public Optional<CommentEntity> createComment(UserDetails user, Integer bookId, CommentEntity comment) {
-        UserEntity userEntity = userRepository.findByUsername(user.getUsername()).get();
+        Optional<UserEntity> userEntityOpt = userRepository.findByEmail(user.getUsername());
+        if (!userEntityOpt.isPresent()) {
+            log.warn("No se encontró usuario con nombre de usuario: {}", user.getUsername());
+            throw new UsernameNotFoundException("Usuario no encontrado en la base de datos");
+        }
+        UserEntity userEntity = userEntityOpt.get();
 
-        return bookRepository.findById(bookId).map(book -> {
-            comment.setUserEntity(userEntity);
-            comment.setDate(new Date());
-            book.getComments().add(comment);
-            updateBookNoteBasedOnComments(book);
-            bookRepository.save(book);
-            return comment;
-        });
+        Optional<BookEntity> bookOpt = bookRepository.findById(bookId);
+        if (!bookOpt.isPresent()) {
+            log.warn("No se encontró libro con ID: {}", bookId);
+            return Optional.empty();
+        }
+        BookEntity book = bookOpt.get();
+
+        comment.setUserEntity(userEntity);
+        comment.setDate(new Date());
+        book.getComments().add(comment);
+        updateBookNoteBasedOnComments(book);
+        bookRepository.save(book);
+        log.debug("Comentario guardado con éxito para el libro: {}", bookId);
+        return Optional.of(comment);
     }
+
 
     private void updateBookNoteBasedOnComments(BookEntity book) {
         List<CommentEntity> comments = book.getComments();
