@@ -2,6 +2,7 @@ package com.anuki.booklovers.controllers;
 
 import com.anuki.booklovers.models.ChapterEntity;
 import com.anuki.booklovers.models.ComicEntity;
+import com.anuki.booklovers.models.ComicList;
 import com.anuki.booklovers.models.CommentEntity;
 import com.anuki.booklovers.services.ComicService;
 import org.springframework.http.HttpStatus;
@@ -28,8 +29,8 @@ public class ComicController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ComicEntity>> listComics() {
-        List<ComicEntity> comics = comicService.listAllComics();
+    public ResponseEntity<List<ComicList>> listComics() {
+        List<ComicList> comics = comicService.listAllComics();
         return ResponseEntity.ok(comics);
     }
 

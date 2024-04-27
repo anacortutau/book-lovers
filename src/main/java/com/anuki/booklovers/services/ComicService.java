@@ -1,9 +1,6 @@
 package com.anuki.booklovers.services;
 
-import com.anuki.booklovers.models.ChapterEntity;
-import com.anuki.booklovers.models.ComicEntity;
-import com.anuki.booklovers.models.CommentEntity;
-import com.anuki.booklovers.models.UserEntity;
+import com.anuki.booklovers.models.*;
 import com.anuki.booklovers.repositories.ComicRepository;
 import com.anuki.booklovers.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,8 +29,20 @@ public class ComicService {
         return comicRepository.save(comic);
     }
 
-    public List<ComicEntity> listAllComics() {
-        return comicRepository.findAll();
+    public List<ComicList> listAllComics() {
+        List<ComicList> comicLists = new ArrayList<>();
+
+        comicRepository.findAll().forEach(comicEntity -> {
+            ComicList comicList = new ComicList();
+
+            comicList.setTitle(comicEntity.getTitle());
+            comicList.setId(comicEntity.getId());
+            comicList.setAuthor(comicEntity.getWritter());
+
+            comicLists.add(comicList);
+        });
+
+        return comicLists;
     }
 
     public Optional<List<CommentEntity>> listCommentsByComicId(Integer comicId) {

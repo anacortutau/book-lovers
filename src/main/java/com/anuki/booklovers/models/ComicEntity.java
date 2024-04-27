@@ -1,5 +1,6 @@
 package com.anuki.booklovers.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.io.Serializable;
@@ -34,10 +35,12 @@ public class ComicEntity implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "comic_entity_id")
+    @JsonManagedReference
     private List<CommentEntity> comments;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "comic_entity_id")
+    @JsonManagedReference
     private List<ChapterEntity> chapters;
 
     private Double note;
