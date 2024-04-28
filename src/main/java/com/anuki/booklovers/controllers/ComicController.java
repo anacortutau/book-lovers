@@ -74,24 +74,6 @@ public class ComicController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{comicId}/chapters/{chapterNum}/comments")
-    public ResponseEntity<?> createCommentInChapter(@AuthenticationPrincipal UserDetails user,
-                                                    @PathVariable Integer comicId,
-                                                    @PathVariable int chapterNum,
-                                                    @RequestBody CommentEntity comment) {
-        return comicService.createCommentInChapter(user, comicId, chapterNum, comment)
-                .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/{comicId}/chapters/{chapterNum}/comments")
-    public ResponseEntity<?> listCommentsInChapter(@PathVariable Integer comicId,
-                                                   @PathVariable int chapterNum) {
-        return comicService.listCommentsInChapter(comicId, chapterNum)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     @DeleteMapping("/{comicId}")
     public ResponseEntity<Void> deleteComic(@PathVariable Integer comicId) {
         comicService.deleteComicById(comicId);

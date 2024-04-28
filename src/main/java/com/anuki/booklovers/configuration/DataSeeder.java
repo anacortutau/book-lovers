@@ -91,7 +91,6 @@ public class DataSeeder implements CommandLineRunner {
                     .title("Chapter " + (i + 1))
                     .sinopsis("Details of Chapter " + (i + 1))
                     .number(i + 1)
-                    .comments(new ArrayList<>())
                     .build();
             chapters.add(chapter);
         }

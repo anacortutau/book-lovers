@@ -1,10 +1,8 @@
 package com.anuki.booklovers.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.io.Serializable;
-import java.util.List;
 
 @Entity
 @Getter
@@ -23,11 +21,6 @@ public class ChapterEntity implements Serializable {
     private String title;
     private String sinopsis;
     private int number;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "chapter_entity_id")
-    @JsonIgnore
-    private List<CommentEntity> comments;
 
     @ManyToOne
     @JoinColumn(name = "comic_entity_id")

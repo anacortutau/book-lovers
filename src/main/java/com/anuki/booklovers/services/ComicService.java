@@ -96,38 +96,9 @@ public class ComicService {
     @Transactional
     public Optional<ChapterEntity> createChapterByComicId(Integer comicId, ChapterEntity chapter) {
         return comicRepository.findById(comicId).map(comic -> {
-            chapter.setComments(new ArrayList<>());
             comic.getChapters().add(chapter);
             comicRepository.save(comic);
             return chapter;
-        });
-    }
-
-    @Transactional
-    public Optional<CommentEntity> createCommentInChapter(UserDetails userDetails, Integer comicId, int chapterNum, CommentEntity comment) {
-        UserEntity userEntity = userRepository.findByEmail(userDetails.getUsername()).get();
-
-        return comicRepository.findById(comicId).map(comic -> {
-            for (ChapterEntity chapter : comic.getChapters()) {
-                if (chapter.getNumber() == chapterNum) {
-                    comment.setUserEntity(userEntity);
-                    comment.setDate(new Date());
-                    chapter.getComments().add(comment);
-                }
-            }
-            comicRepository.save(comic);
-            return comment;
-        });
-    }
-
-    public Optional<List<CommentEntity>> listCommentsInChapter(Integer comicId, int chapterNum) {
-        return comicRepository.findById(comicId).map(comic -> {
-            for (ChapterEntity chapter : comic.getChapters()) {
-                if (chapter.getNumber() == chapterNum) {
-                    return chapter.getComments();
-                }
-            }
-            return null;
         });
     }
 
