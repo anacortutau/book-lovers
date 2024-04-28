@@ -96,7 +96,7 @@ public class ComicService {
     @Transactional
     public Optional<ChapterEntity> createChapterByComicId(Integer comicId, ChapterEntity chapter) {
         return comicRepository.findById(comicId).map(comic -> {
-            chapter.setComments(new ArrayList<>()); // Initialize empty comments list
+            chapter.setComments(new ArrayList<>());
             comic.getChapters().add(chapter);
             comicRepository.save(comic);
             return chapter;
@@ -105,7 +105,7 @@ public class ComicService {
 
     @Transactional
     public Optional<CommentEntity> createCommentInChapter(UserDetails userDetails, Integer comicId, int chapterNum, CommentEntity comment) {
-        UserEntity userEntity = userRepository.findByUsername(userDetails.getUsername()).get();
+        UserEntity userEntity = userRepository.findByEmail(userDetails.getUsername()).get();
 
         return comicRepository.findById(comicId).map(comic -> {
             for (ChapterEntity chapter : comic.getChapters()) {
