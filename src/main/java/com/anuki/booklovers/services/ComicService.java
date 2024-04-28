@@ -3,7 +3,9 @@ package com.anuki.booklovers.services;
 import com.anuki.booklovers.models.*;
 import com.anuki.booklovers.repositories.ComicRepository;
 import com.anuki.booklovers.repositories.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ComicService {
@@ -38,6 +41,7 @@ public class ComicService {
             comicList.setTitle(comicEntity.getTitle());
             comicList.setId(comicEntity.getId());
             comicList.setAuthor(comicEntity.getWritter());
+            comicList.setNote(comicEntity.getNote());
 
             comicLists.add(comicList);
         });
@@ -55,17 +59,30 @@ public class ComicService {
     }
 
     @Transactional
-    public Optional<CommentEntity> createComment(UserDetails userDetails, Integer comicId, CommentEntity comment) {
-        UserEntity userEntity = userRepository.findByUsername(userDetails.getUsername()).get();
-        return comicRepository.findById(comicId).map(comic -> {
-            comment.setUserEntity(userEntity);
-            comment.setDate(new Date());
-            comic.getComments().add(comment);
-            updateComicNote(comic);
-            comicRepository.save(comic);
-            return comment;
-        });
+    public Optional<CommentEntity> createComment(UserDetails user, Integer bookId, CommentEntity comment) {
+        Optional<UserEntity> userEntityOpt = userRepository.findByEmail(user.getUsername());
+        if (!userEntityOpt.isPresent()) {
+            log.warn("No se encontró usuario con nombre de usuario: {}", user.getUsername());
+            throw new UsernameNotFoundException("Usuario no encontrado en la base de datos");
+        }
+        UserEntity userEntity = userEntityOpt.get();
+
+        Optional<ComicEntity> comicOpt = comicRepository.findById(bookId);
+        if (!comicOpt.isPresent()) {
+            log.warn("No se encontró libro con ID: {}", bookId);
+            return Optional.empty();
+        }
+        ComicEntity comic = comicOpt.get();
+
+        comment.setUserEntity(userEntity);
+        comment.setDate(new Date());
+        comic.getComments().add(comment);
+        updateComicNoteBasedOnComments(comic);
+        comicRepository.save(comic);
+        log.debug("Comentario guardado con éxito para el comic: {}", bookId);
+        return Optional.of(comment);
     }
+
 
     public void deleteComicById(Integer comicId) {
         comicRepository.deleteById(comicId);
@@ -114,9 +131,10 @@ public class ComicService {
         });
     }
 
-    private void updateComicNote(ComicEntity comic) {
+    private void updateComicNoteBasedOnComments(ComicEntity comic) {
         List<CommentEntity> comments = comic.getComments();
         double totalNote = comments.stream().mapToDouble(CommentEntity::getNote).sum();
-        comic.setNote(comments.isEmpty() ? 0 : totalNote / comments.size());
+        double averageNote = totalNote / comments.size();
+        comic.setNote(averageNote);
     }
 }
