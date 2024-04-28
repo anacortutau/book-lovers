@@ -1,6 +1,9 @@
 package com.anuki.booklovers.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.io.Serializable;
@@ -26,6 +29,7 @@ public class ChapterEntity implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "chapter_entity_id")
+    @JsonIgnore
     private List<CommentEntity> comments;
 
     @ManyToOne

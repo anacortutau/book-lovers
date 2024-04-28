@@ -35,7 +35,6 @@ public class CommentEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "book_entity_id")
-    @JsonBackReference
     private BookEntity book;
 
     @ManyToOne

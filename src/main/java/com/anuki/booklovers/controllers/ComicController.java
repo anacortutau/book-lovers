@@ -5,6 +5,7 @@ import com.anuki.booklovers.models.ComicEntity;
 import com.anuki.booklovers.models.ComicList;
 import com.anuki.booklovers.models.CommentEntity;
 import com.anuki.booklovers.services.ComicService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+@Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/book-lovers/comics")
