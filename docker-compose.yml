@@ -5,10 +5,10 @@ services:
     image: postgres:14.1
     restart: unless-stopped
     ports:
-      - "54320:5432"
+      - "5432:5432"
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_PASSWORD=adminBookLovers
       - POSTGRES_USER=postgres
       - POSTGRES_DB=booklovers
     hostname: postgres
