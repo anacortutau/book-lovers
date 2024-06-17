@@ -1,0 +1,977 @@
+Resources:
+  MyVpcF9F0CA6F:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/Resource
+  MyVpcPublicSubnet1SubnetF6608456:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.0.0/18
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PublicSubnet1
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet1/Subnet
+  MyVpcPublicSubnet1RouteTableC46AB2F4:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PublicSubnet1
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet1/RouteTable
+  MyVpcPublicSubnet1RouteTableAssociation2ECEE1CB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MyVpcPublicSubnet1RouteTableC46AB2F4
+      SubnetId:
+        Ref: MyVpcPublicSubnet1SubnetF6608456
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet1/RouteTableAssociation
+  MyVpcPublicSubnet1DefaultRoute95FDF9EB:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: MyVpcIGW5C4A4F63
+      RouteTableId:
+        Ref: MyVpcPublicSubnet1RouteTableC46AB2F4
+    DependsOn:
+      - MyVpcVPCGW488ACE0D
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet1/DefaultRoute
+  MyVpcPublicSubnet1EIP096967CB:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PublicSubnet1
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet1/EIP
+  MyVpcPublicSubnet1NATGatewayAD3400C1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - MyVpcPublicSubnet1EIP096967CB
+          - AllocationId
+      SubnetId:
+        Ref: MyVpcPublicSubnet1SubnetF6608456
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PublicSubnet1
+    DependsOn:
+      - MyVpcPublicSubnet1DefaultRoute95FDF9EB
+      - MyVpcPublicSubnet1RouteTableAssociation2ECEE1CB
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet1/NATGateway
+  MyVpcPublicSubnet2Subnet492B6BFB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.64.0/18
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PublicSubnet2
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet2/Subnet
+  MyVpcPublicSubnet2RouteTable1DF17386:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PublicSubnet2
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet2/RouteTable
+  MyVpcPublicSubnet2RouteTableAssociation227DE78D:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MyVpcPublicSubnet2RouteTable1DF17386
+      SubnetId:
+        Ref: MyVpcPublicSubnet2Subnet492B6BFB
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet2/RouteTableAssociation
+  MyVpcPublicSubnet2DefaultRoute052936F6:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: MyVpcIGW5C4A4F63
+      RouteTableId:
+        Ref: MyVpcPublicSubnet2RouteTable1DF17386
+    DependsOn:
+      - MyVpcVPCGW488ACE0D
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet2/DefaultRoute
+  MyVpcPublicSubnet2EIP8CCBA239:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PublicSubnet2
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet2/EIP
+  MyVpcPublicSubnet2NATGateway91BFBEC9:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - MyVpcPublicSubnet2EIP8CCBA239
+          - AllocationId
+      SubnetId:
+        Ref: MyVpcPublicSubnet2Subnet492B6BFB
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PublicSubnet2
+    DependsOn:
+      - MyVpcPublicSubnet2DefaultRoute052936F6
+      - MyVpcPublicSubnet2RouteTableAssociation227DE78D
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PublicSubnet2/NATGateway
+  MyVpcPrivateSubnet1Subnet5057CF7E:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.128.0/18
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PrivateSubnet1
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PrivateSubnet1/Subnet
+  MyVpcPrivateSubnet1RouteTable8819E6E2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PrivateSubnet1
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PrivateSubnet1/RouteTable
+  MyVpcPrivateSubnet1RouteTableAssociation56D38C7E:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MyVpcPrivateSubnet1RouteTable8819E6E2
+      SubnetId:
+        Ref: MyVpcPrivateSubnet1Subnet5057CF7E
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PrivateSubnet1/RouteTableAssociation
+  MyVpcPrivateSubnet1DefaultRouteA8CDE2FA:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: MyVpcPublicSubnet1NATGatewayAD3400C1
+      RouteTableId:
+        Ref: MyVpcPrivateSubnet1RouteTable8819E6E2
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PrivateSubnet1/DefaultRoute
+  MyVpcPrivateSubnet2Subnet0040C983:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.192.0/18
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PrivateSubnet2
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PrivateSubnet2/Subnet
+  MyVpcPrivateSubnet2RouteTableCEDCEECE:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc/PrivateSubnet2
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PrivateSubnet2/RouteTable
+  MyVpcPrivateSubnet2RouteTableAssociation86A610DA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MyVpcPrivateSubnet2RouteTableCEDCEECE
+      SubnetId:
+        Ref: MyVpcPrivateSubnet2Subnet0040C983
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PrivateSubnet2/RouteTableAssociation
+  MyVpcPrivateSubnet2DefaultRoute9CE96294:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: MyVpcPublicSubnet2NATGateway91BFBEC9
+      RouteTableId:
+        Ref: MyVpcPrivateSubnet2RouteTableCEDCEECE
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/PrivateSubnet2/DefaultRoute
+  MyVpcIGW5C4A4F63:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: InfrastructureStack/MyVpc
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/IGW
+  MyVpcVPCGW488ACE0D:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: MyVpcIGW5C4A4F63
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/VPCGW
+  MyVpcRestrictDefaultSecurityGroupCustomResourceA4FCCD62:
+    Type: Custom::VpcRestrictDefaultSG
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E
+          - Arn
+      DefaultSecurityGroupId:
+        Fn::GetAtt:
+          - MyVpcF9F0CA6F
+          - DefaultSecurityGroup
+      Account:
+        Ref: AWS::AccountId
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: InfrastructureStack/MyVpc/RestrictDefaultSecurityGroupCustomResource/Default
+  CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: Inline
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:AuthorizeSecurityGroupIngress
+                  - ec2:AuthorizeSecurityGroupEgress
+                  - ec2:RevokeSecurityGroupIngress
+                  - ec2:RevokeSecurityGroupEgress
+                Resource:
+                  - Fn::Join:
+                      - ""
+                      - - "arn:"
+                        - Ref: AWS::Partition
+                        - ":ec2:"
+                        - Ref: AWS::Region
+                        - ":"
+                        - Ref: AWS::AccountId
+                        - :security-group/
+                        - Fn::GetAtt:
+                            - MyVpcF9F0CA6F
+                            - DefaultSecurityGroup
+    Metadata:
+      aws:cdk:path: InfrastructureStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role
+  CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: ee7de53d64cc9d6248fa6aa550f92358f6c907b5efd6f3298aeab1b5e7ea358a.zip
+      Timeout: 900
+      MemorySize: 128
+      Handler: __entrypoint__.handler
+      Role:
+        Fn::GetAtt:
+          - CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0
+          - Arn
+      Runtime:
+        Fn::FindInMap:
+          - LatestNodeRuntimeMap
+          - Ref: AWS::Region
+          - value
+      Description: Lambda function for removing all inbound/outbound rules from the VPC default security group
+    DependsOn:
+      - CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0
+    Metadata:
+      aws:cdk:path: InfrastructureStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler
+      aws:asset:path: asset.ee7de53d64cc9d6248fa6aa550f92358f6c907b5efd6f3298aeab1b5e7ea358a
+      aws:asset:property: Code
+  EcsCluster97242B84:
+    Type: AWS::ECS::Cluster
+    Metadata:
+      aws:cdk:path: InfrastructureStack/EcsCluster/Resource
+  PostgresDBSubnetGroup5D444ECC:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for PostgresDB database
+      SubnetIds:
+        - Ref: MyVpcPublicSubnet1SubnetF6608456
+        - Ref: MyVpcPublicSubnet2Subnet492B6BFB
+    Metadata:
+      aws:cdk:path: InfrastructureStack/PostgresDB/SubnetGroup/Default
+  PostgresDBSecurityGroupEF920298:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for PostgresDB database
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/PostgresDB/SecurityGroup/Resource
+  PostgresDB113281D2:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: "20"
+      CopyTagsToSnapshot: true
+      DBInstanceClass: db.t2.micro
+      DBName: mydatabase
+      DBSubnetGroupName:
+        Ref: PostgresDBSubnetGroup5D444ECC
+      Engine: postgres
+      EngineVersion: "13.3"
+      MasterUserPassword: myPassword
+      MasterUsername: myUsername
+      PubliclyAccessible: true
+      StorageType: gp2
+      VPCSecurityGroups:
+        - Fn::GetAtt:
+            - PostgresDBSecurityGroupEF920298
+            - GroupId
+    UpdateReplacePolicy: Snapshot
+    DeletionPolicy: Snapshot
+    Metadata:
+      aws:cdk:path: InfrastructureStack/PostgresDB/Resource
+  EcrRepoBB83A592:
+    Type: AWS::ECR::Repository
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: InfrastructureStack/EcrRepo/Resource
+  TaskDefTaskRole1EDB4A67:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: InfrastructureStack/TaskDef/TaskRole/Resource
+  TaskDef54694570:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Environment:
+            - Name: SPRING_DATASOURCE_URL
+              Value:
+                Fn::Join:
+                  - ""
+                  - - jdbc:postgresql://
+                    - Fn::GetAtt:
+                        - PostgresDB113281D2
+                        - Endpoint.Address
+                    - ":"
+                    - Fn::GetAtt:
+                        - PostgresDB113281D2
+                        - Endpoint.Port
+                    - /booklovers
+            - Name: SPRING_DATASOURCE_USERNAME
+              Value: postgres
+            - Name: SPRING_DATASOURCE_PASSWORD
+              Value: admin
+            - Name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              Value: org.postgresql.Driver
+            - Name: SPRING_JPA_DATABASE_PLATFORM
+              Value: org.hibernate.dialect.PostgreSQLDialect
+            - Name: JWT_SECRET
+              Value: bookloversSecretKeydefaultfeiorfjeioge9043i9340jgeirosdcmleifjwiorjr3920r92u490
+            - Name: JWT_EXPIRATION_MS
+              Value: "86400000"
+          Essential: true
+          Image:
+            Fn::Join:
+              - ""
+              - - Fn::Select:
+                    - 4
+                    - Fn::Split:
+                        - ":"
+                        - Fn::GetAtt:
+                            - EcrRepoBB83A592
+                            - Arn
+                - .dkr.ecr.
+                - Fn::Select:
+                    - 3
+                    - Fn::Split:
+                        - ":"
+                        - Fn::GetAtt:
+                            - EcrRepoBB83A592
+                            - Arn
+                - "."
+                - Ref: AWS::URLSuffix
+                - /
+                - Ref: EcrRepoBB83A592
+                - :latest
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: TaskDefSpringBootContainerLogGroup02634894
+              awslogs-stream-prefix: spring-boot
+              awslogs-region:
+                Ref: AWS::Region
+          Name: SpringBootContainer
+          PortMappings:
+            - ContainerPort: 8080
+              Protocol: tcp
+      Cpu: "256"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - TaskDefExecutionRoleB4775C97
+          - Arn
+      Family: InfrastructureStackTaskDefC3EAB96E
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      TaskRoleArn:
+        Fn::GetAtt:
+          - TaskDefTaskRole1EDB4A67
+          - Arn
+    Metadata:
+      aws:cdk:path: InfrastructureStack/TaskDef/Resource
+  TaskDefSpringBootContainerLogGroup02634894:
+    Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: InfrastructureStack/TaskDef/SpringBootContainer/LogGroup/Resource
+  TaskDefExecutionRoleB4775C97:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: InfrastructureStack/TaskDef/ExecutionRole/Resource
+  TaskDefExecutionRoleDefaultPolicy0DBB737A:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecr:BatchCheckLayerAvailability
+              - ecr:BatchGetImage
+              - ecr:GetDownloadUrlForLayer
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - EcrRepoBB83A592
+                - Arn
+          - Action: ecr:GetAuthorizationToken
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - TaskDefSpringBootContainerLogGroup02634894
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: TaskDefExecutionRoleDefaultPolicy0DBB737A
+      Roles:
+        - Ref: TaskDefExecutionRoleB4775C97
+    Metadata:
+      aws:cdk:path: InfrastructureStack/TaskDef/ExecutionRole/DefaultPolicy/Resource
+  FargateServiceLBB353E155:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      LoadBalancerAttributes:
+        - Key: deletion_protection.enabled
+          Value: "false"
+      Scheme: internet-facing
+      SecurityGroups:
+        - Fn::GetAtt:
+            - FargateServiceLBSecurityGroup5F444C78
+            - GroupId
+      Subnets:
+        - Ref: MyVpcPublicSubnet1SubnetF6608456
+        - Ref: MyVpcPublicSubnet2Subnet492B6BFB
+      Type: application
+    DependsOn:
+      - MyVpcPublicSubnet1DefaultRoute95FDF9EB
+      - MyVpcPublicSubnet1RouteTableAssociation2ECEE1CB
+      - MyVpcPublicSubnet2DefaultRoute052936F6
+      - MyVpcPublicSubnet2RouteTableAssociation227DE78D
+    Metadata:
+      aws:cdk:path: InfrastructureStack/FargateService/LB/Resource
+  FargateServiceLBSecurityGroup5F444C78:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Automatically created Security Group for ELB InfrastructureStackFargateServiceLB1814F42D
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow from anyone on port 80
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/FargateService/LB/SecurityGroup/Resource
+  FargateServiceLBSecurityGrouptoInfrastructureStackFargateServiceSecurityGroup3F722BD68080D462053B:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      Description: Load balancer to target
+      DestinationSecurityGroupId:
+        Fn::GetAtt:
+          - FargateServiceSecurityGroup262B61DD
+          - GroupId
+      FromPort: 8080
+      GroupId:
+        Fn::GetAtt:
+          - FargateServiceLBSecurityGroup5F444C78
+          - GroupId
+      IpProtocol: tcp
+      ToPort: 8080
+    Metadata:
+      aws:cdk:path: InfrastructureStack/FargateService/LB/SecurityGroup/to InfrastructureStackFargateServiceSecurityGroup3F722BD6:8080
+  FargateServiceLBPublicListener4B4929CA:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn:
+            Ref: FargateServiceLBPublicListenerECSGroupBE57E081
+          Type: forward
+      LoadBalancerArn:
+        Ref: FargateServiceLBB353E155
+      Port: 80
+      Protocol: HTTP
+    Metadata:
+      aws:cdk:path: InfrastructureStack/FargateService/LB/PublicListener/Resource
+  FargateServiceLBPublicListenerECSGroupBE57E081:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      TargetGroupAttributes:
+        - Key: stickiness.enabled
+          Value: "false"
+      TargetType: ip
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    Metadata:
+      aws:cdk:path: InfrastructureStack/FargateService/LB/PublicListener/ECSGroup/Resource
+  FargateServiceECC8084D:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: EcsCluster97242B84
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      EnableECSManagedTags: false
+      HealthCheckGracePeriodSeconds: 60
+      LaunchType: FARGATE
+      LoadBalancers:
+        - ContainerName: SpringBootContainer
+          ContainerPort: 8080
+          TargetGroupArn:
+            Ref: FargateServiceLBPublicListenerECSGroupBE57E081
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - Fn::GetAtt:
+                - FargateServiceSecurityGroup262B61DD
+                - GroupId
+          Subnets:
+            - Ref: MyVpcPrivateSubnet1Subnet5057CF7E
+            - Ref: MyVpcPrivateSubnet2Subnet0040C983
+      TaskDefinition:
+        Ref: TaskDef54694570
+    DependsOn:
+      - FargateServiceLBPublicListenerECSGroupBE57E081
+      - FargateServiceLBPublicListener4B4929CA
+      - TaskDefTaskRole1EDB4A67
+    Metadata:
+      aws:cdk:path: InfrastructureStack/FargateService/Service/Service
+  FargateServiceSecurityGroup262B61DD:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: InfrastructureStack/FargateService/Service/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    DependsOn:
+      - TaskDefTaskRole1EDB4A67
+    Metadata:
+      aws:cdk:path: InfrastructureStack/FargateService/Service/SecurityGroup/Resource
+  FargateServiceSecurityGroupfromInfrastructureStackFargateServiceLBSecurityGroup7A4B44258080F8FA5A70:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Load balancer to target
+      FromPort: 8080
+      GroupId:
+        Fn::GetAtt:
+          - FargateServiceSecurityGroup262B61DD
+          - GroupId
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - FargateServiceLBSecurityGroup5F444C78
+          - GroupId
+      ToPort: 8080
+    DependsOn:
+      - TaskDefTaskRole1EDB4A67
+    Metadata:
+      aws:cdk:path: InfrastructureStack/FargateService/Service/SecurityGroup/from InfrastructureStackFargateServiceLBSecurityGroup7A4B4425:8080
+  springbootapiE452BF10:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: This service serves a Spring Boot application.
+      Name: SpringBoot Service
+    Metadata:
+      aws:cdk:path: InfrastructureStack/springboot-api/Resource
+  springbootapiDeployment378873BEcfc29067bd13e10d687c277ffe994788:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      Description: This service serves a Spring Boot application.
+      RestApiId:
+        Ref: springbootapiE452BF10
+    DependsOn:
+      - springbootapiANY9EE900DA
+      - springbootapiOPTIONSC2402E6D
+    Metadata:
+      aws:cdk:path: InfrastructureStack/springboot-api/Deployment/Resource
+  springbootapiDeploymentStageprod92688475:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: springbootapiDeployment378873BEcfc29067bd13e10d687c277ffe994788
+      RestApiId:
+        Ref: springbootapiE452BF10
+      StageName: prod
+    Metadata:
+      aws:cdk:path: InfrastructureStack/springboot-api/DeploymentStage.prod/Resource
+  springbootapiOPTIONSC2402E6D:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+      ResourceId:
+        Fn::GetAtt:
+          - springbootapiE452BF10
+          - RootResourceId
+      RestApiId:
+        Ref: springbootapiE452BF10
+    Metadata:
+      aws:cdk:path: InfrastructureStack/springboot-api/Default/OPTIONS/Resource
+  springbootapiANY9EE900DA:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: ANY
+      Integration:
+        IntegrationHttpMethod: ANY
+        Type: HTTP_PROXY
+        Uri:
+          Fn::GetAtt:
+            - FargateServiceLBB353E155
+            - DNSName
+      ResourceId:
+        Fn::GetAtt:
+          - springbootapiE452BF10
+          - RootResourceId
+      RestApiId:
+        Ref: springbootapiE452BF10
+    Metadata:
+      aws:cdk:path: InfrastructureStack/springboot-api/Default/ANY/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/31T227bMAz9lr0r3pYNe8+lKwK0m5EUfS1kmXHZOJIg0S4Cw/8+SoovSIs96fDoSKQOqWX2/eev7NsX+e4Xqjwtaiyy7kBSnQRTLx2oZdY9WyU2R/2cb0TeFDWqQ1NooMBNaG8agidZ1DDxE7fy3iiUhEaP4gDudnlY/ki6lwTv8iJyhy3D6eKdJnCMB0Gq5BqtiGt9PYMmcQDVOKTLvTONjTX8l7irHHj/gd7pyPcClM+6Td14zh5UA/wtXSXDq/xpC0fUOLzpljGaJGpwM+569gCuRZV8SrAXruR0W0mykB522pPUrEgujA/Yrj8QgzQU7LJuD9Z4JOOiT1PUC5Rn3japPXHNDbcy6hLqRW0qruLBVGOCAUc/Xqyk0AufrazlE7GdD0aWa1mHGsqb90EtPaGqWVFEBeqq5Xn6/LRL+WbxXIdsvr5qBjzbf+LMM19mYS+kxSpNS/DH08piMifBLdjaXOIIBUeniL9BlZoUAetN4xSsuUHiEejVlGEzob4f98WGB8WcpzCmGvGjtJZ9uFHlzrRYgouX82cBCkmj7qj/NmSbWB0PVRlHqRfalJC9+a/tcpn94B/85hEXrtGEZ8j2af0HFMdQUN4DAAA=
+    Metadata:
+      aws:cdk:path: InfrastructureStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Mappings:
+  LatestNodeRuntimeMap:
+    af-south-1:
+      value: nodejs20.x
+    ap-east-1:
+      value: nodejs20.x
+    ap-northeast-1:
+      value: nodejs20.x
+    ap-northeast-2:
+      value: nodejs20.x
+    ap-northeast-3:
+      value: nodejs20.x
+    ap-south-1:
+      value: nodejs20.x
+    ap-south-2:
+      value: nodejs20.x
+    ap-southeast-1:
+      value: nodejs20.x
+    ap-southeast-2:
+      value: nodejs20.x
+    ap-southeast-3:
+      value: nodejs20.x
+    ap-southeast-4:
+      value: nodejs20.x
+    ca-central-1:
+      value: nodejs20.x
+    cn-north-1:
+      value: nodejs18.x
+    cn-northwest-1:
+      value: nodejs18.x
+    eu-central-1:
+      value: nodejs20.x
+    eu-central-2:
+      value: nodejs20.x
+    eu-north-1:
+      value: nodejs20.x
+    eu-south-1:
+      value: nodejs20.x
+    eu-south-2:
+      value: nodejs20.x
+    eu-west-1:
+      value: nodejs20.x
+    eu-west-2:
+      value: nodejs20.x
+    eu-west-3:
+      value: nodejs20.x
+    il-central-1:
+      value: nodejs20.x
+    me-central-1:
+      value: nodejs20.x
+    me-south-1:
+      value: nodejs20.x
+    sa-east-1:
+      value: nodejs20.x
+    us-east-1:
+      value: nodejs20.x
+    us-east-2:
+      value: nodejs20.x
+    us-west-1:
+      value: nodejs20.x
+    us-west-2:
+      value: nodejs20.x
+Outputs:
+  FargateServiceLoadBalancerDNS9433D5F6:
+    Value:
+      Fn::GetAtt:
+        - FargateServiceLBB353E155
+        - DNSName
+  FargateServiceServiceURL47701F45:
+    Value:
+      Fn::Join:
+        - ""
+        - - http://
+          - Fn::GetAtt:
+              - FargateServiceLBB353E155
+              - DNSName
+  springbootapiEndpoint45A79C9C:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: springbootapiE452BF10
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: springbootapiDeploymentStageprod92688475
+          - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - il-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+
